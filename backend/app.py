@@ -89,6 +89,14 @@ def serve_sitemap():
     return Response(content="<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'><url><loc>/</loc></url></urlset>", media_type="application/xml")
 
 
+@app.get("/googlebd7d837dd64af71b.html")
+def serve_google_verify():
+    verify_file = os.path.join(static_dir, "googlebd7d837dd64af71b.html")
+    if os.path.exists(verify_file):
+        return FileResponse(verify_file, media_type="text/html")
+    return Response(content="google-site-verification: googlebd7d837dd64af71b.html\n", media_type="text/html")
+
+
 @app.get("/api/detect")
 def detect_url(url: str = Query(..., description="The media URL to analyze in real-time")):
     """
