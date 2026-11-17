@@ -64,19 +64,22 @@ class DownloadJobRequest(BaseModel):
 from downloader.cookie_helper import count_valid_cookies, get_cookie_file
 
 
-@app.get("/api/health")
-def health_check():
-    import shutil
-    cookie_env = os.environ.get("YOUTUBE_COOKIES", "")
+@app.get("/api/debug_cookie_names")
+def debug_cookie_names():
+    from downloader.cookie_helper import get_cookie_file
+    cf = get_cookie_file()
+    if not cf or not os.path.exists(cf):
+        return {"has_file": False}
+    import http.cookiejar
+    cj = http.cookiejar.MozillaCookieJar(cf)
+    cj.load(ignore_discard=True, ignore_expires=True)
     return {
-        "status": "ok",
-        "version": "1.0.6",
-        "has_youtube_cookies": bool(cookie_env),
-        "cookies_length": len(cookie_env),
-        "valid_cookies_count": count_valid_cookies(),
-        "has_node": bool(shutil.which("node") or shutil.which("nodejs")),
-        "node_path": shutil.which("node") or shutil.which("nodejs"),
-        "has_ffmpeg": bool(shutil.which("ffmpeg")),
+        "has_file": True,
+        "cookie_count": len(cj),
+        "domains": list(set(c.domain for c in cj)),
+        "cookie_names": [c.name for c in cj],
+        "has_login_info": any(c.name == "LOGIN_INFO" for c in cj),
+        "has_sid": any("SID" in c.name for c in cj),
     }
 
 

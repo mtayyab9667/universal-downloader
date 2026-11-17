@@ -5,3 +5,4 @@ imageio-ffmpeg>=0.4.9
 requests>=2.31.0
 greenlet
 playwright>=1.40.0
+bgutil-ytdlp-pot-provider
