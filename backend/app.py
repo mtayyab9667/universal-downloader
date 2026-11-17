@@ -80,37 +80,32 @@ def health_check():
     }
 
 
-@app.get("/api/debug_formats")
-def debug_formats(url: str = Query(...)):
+@app.get("/api/test_dl")
+def test_dl(url: str):
     try:
-        import yt_dlp
-        from downloader.universal_extractor import get_cookie_file
-        cookie_file = get_cookie_file()
-        opts = {
-            'skip_download': True,
-            'ignore_no_formats_error': True,
-            'quiet': True,
+        dest_dir = os.path.join(CACHE_DIR, "test_dl")
+        os.makedirs(dest_dir, exist_ok=True)
+        cf = universal_downloader.get_cookie_file()
+        final_file = universal_downloader.download_sync(
+            url=url,
+            dest_folder=dest_dir,
+            format_id="bestvideo*+bestaudio/best",
+            target_ext="mp4"
+        )
+        return {
+            "success": True,
+            "file": final_file,
+            "cookie_file": cf,
+            "file_size": os.path.getsize(final_file) if os.path.exists(final_file) else 0
         }
-        if cookie_file:
-            opts['cookiefile'] = cookie_file
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            return {
-                "title": info.get("title"),
-                "formats_count": len(info.get("formats", [])),
-                "formats": [
-                    {
-                        "format_id": f.get("format_id"),
-                        "ext": f.get("ext"),
-                        "vcodec": f.get("vcodec"),
-                        "acodec": f.get("acodec"),
-                        "height": f.get("height")
-                    }
-                    for f in info.get("formats", [])
-                ]
-            }
     except Exception as e:
-        return {"error": str(e)}
+        import traceback
+        return {
+            "success": False,
+            "error": str(e),
+            "traceback": traceback.format_exc(),
+            "cookie_file": universal_downloader.get_cookie_file()
+        }
 
 
 @app.get("/")
