@@ -61,14 +61,22 @@ class DownloadJobRequest(BaseModel):
     title: Optional[str] = "video"
 
 
+from downloader.cookie_helper import count_valid_cookies, get_cookie_file
+
+
 @app.get("/api/health")
 def health_check():
+    import shutil
     cookie_env = os.environ.get("YOUTUBE_COOKIES", "")
     return {
         "status": "ok",
-        "version": "1.0.4",
+        "version": "1.0.6",
         "has_youtube_cookies": bool(cookie_env),
         "cookies_length": len(cookie_env),
+        "valid_cookies_count": count_valid_cookies(),
+        "has_node": bool(shutil.which("node") or shutil.which("nodejs")),
+        "node_path": shutil.which("node") or shutil.which("nodejs"),
+        "has_ffmpeg": bool(shutil.which("ffmpeg")),
     }
 
 

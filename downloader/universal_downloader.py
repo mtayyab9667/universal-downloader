@@ -1,9 +1,12 @@
 import os
 import re
+import shutil
 import threading
 from typing import Callable, Optional, Dict, Any
 import imageio_ffmpeg
 import yt_dlp
+
+from .cookie_helper import get_cookie_file
 
 class UniversalDownloader:
     """
@@ -12,35 +15,14 @@ class UniversalDownloader:
     """
 
     def __init__(self):
-        self.ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+        self.ffmpeg_exe = shutil.which("ffmpeg") or imageio_ffmpeg.get_ffmpeg_exe()
         self.is_running: bool = False
         self.stop_requested: bool = False
         self._thread: Optional[threading.Thread] = None
 
     @staticmethod
     def get_cookie_file() -> Optional[str]:
-        import tempfile
-        raw_cookies = os.environ.get("YOUTUBE_COOKIES")
-        if raw_cookies:
-            cookie_path = os.path.join(tempfile.gettempdir(), "render_yt_cookies.txt")
-            try:
-                cleaned = raw_cookies.replace('\\n', '\n').strip()
-                if not cleaned.startswith('# Netscape'):
-                    cleaned = "# Netscape HTTP Cookie File\n" + cleaned
-                with open(cookie_path, "w", encoding="utf-8") as f:
-                    f.write(cleaned + "\n")
-                return cookie_path
-            except Exception:
-                pass
-
-        for p in [
-            os.path.join(os.getcwd(), "cookies.txt"),
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), "cookies.txt"),
-            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cookies.txt"),
-        ]:
-            if os.path.exists(p) and os.path.getsize(p) > 0:
-                return p
-        return None
+        return get_cookie_file()
 
     @staticmethod
     def sanitize_filename(name: str) -> str:
