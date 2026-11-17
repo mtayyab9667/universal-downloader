@@ -61,6 +61,17 @@ class DownloadJobRequest(BaseModel):
     title: Optional[str] = "video"
 
 
+@app.get("/api/health")
+def health_check():
+    cookie_env = os.environ.get("YOUTUBE_COOKIES", "")
+    return {
+        "status": "ok",
+        "version": "1.0.3",
+        "has_youtube_cookies": bool(cookie_env),
+        "cookies_length": len(cookie_env),
+    }
+
+
 @app.get("/")
 def serve_index():
     index_file = os.path.join(static_dir, "index.html")
