@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://universal-downloader-7and.onrender.com/sitemap.xml

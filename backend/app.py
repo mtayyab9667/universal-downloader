@@ -73,6 +73,22 @@ def serve_index():
     }
 
 
+@app.get("/robots.txt")
+def serve_robots():
+    robots_file = os.path.join(static_dir, "robots.txt")
+    if os.path.exists(robots_file):
+        return FileResponse(robots_file, media_type="text/plain")
+    return Response(content="User-agent: *\nAllow: /\n", media_type="text/plain")
+
+
+@app.get("/sitemap.xml")
+def serve_sitemap():
+    sitemap_file = os.path.join(static_dir, "sitemap.xml")
+    if os.path.exists(sitemap_file):
+        return FileResponse(sitemap_file, media_type="application/xml")
+    return Response(content="<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'><url><loc>/</loc></url></urlset>", media_type="application/xml")
+
+
 @app.get("/api/detect")
 def detect_url(url: str = Query(..., description="The media URL to analyze in real-time")):
     """
