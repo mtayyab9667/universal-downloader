@@ -1,0 +1,16 @@
+{
+  "appId": "com.universaldownloader.media",
+  "appName": "Universal Media Saver",
+  "webDir": "../backend/static",
+  "bundledWebRuntime": false,
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#0b0f19"
+    }
+  },
+  "server": {
+    "cleartext": true,
+    "androidScheme": "https"
+  }
+}

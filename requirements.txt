@@ -1,0 +1,7 @@
+customtkinter>=6.0.0
+curl_cffi>=0.7.0
+yt-dlp>=2024.1.0
+imageio-ffmpeg>=0.4.9
+requests>=2.31.0
+greenlet
+playwright>=1.40.0

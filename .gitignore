@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# Application downloads and cache
+backend/cache/
+Downloads/
+*.mp4
+*.mp3
+*.mkv
+*.webm
+
+# Portable binaries
+cloudflared.exe
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

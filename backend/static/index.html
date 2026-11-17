@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Universal Video & Drama Downloader</title>
+  <!-- Google Fonts: Editorial Serif (Lora) & Modern Clean Sans (Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Lora', 'Georgia', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            sage: {
+              DEFAULT: '#A5A79B', // Exact user swatch
+              light: '#B6B8AC',
+              dark: '#8E9183',
+              deep: '#6F7265',
+              charcoal: '#252924'
+            },
+            cream: {
+              DEFAULT: '#E8D2B5', // Exact user swatch
+              light: '#F5EAE0',
+              soft: '#F0DEC8',
+              dark: '#DFCAAC',
+              deep: '#C5AE8E'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --color-sage: #A5A79B;
+      --color-cream: #E8D2B5;
+      --color-charcoal: #232822;
+    }
+    body {
+      background-color: var(--color-sage);
+      color: var(--color-charcoal);
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      transition: background-color 0.3s ease;
+    }
+    .swatch-serif {
+      font-family: 'Lora', Georgia, serif;
+    }
+    input::placeholder {
+      color: #6F7265;
+      opacity: 0.7;
+    }
+    ::selection {
+      background-color: var(--color-sage);
+      color: #FFFFFF;
+    }
+  </style>
+</head>
+<body id="pageBody" class="min-h-screen flex flex-col justify-between selection:bg-sage selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-sage-deep/30 bg-cream/95 backdrop-blur sticky top-0 z-50 transition-colors">
+    <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div>
+        <h1 class="text-base sm:text-lg font-bold tracking-tight swatch-serif text-sage-charcoal">
+          Universal Downloader
+        </h1>
+        <p class="text-[11px] text-sage-deep font-sans tracking-wide">Web, Android and Mobile</p>
+      </div>
+      <div class="flex items-center space-x-2 text-xs">
+        <span class="hidden sm:inline-block px-3 py-1 rounded-full bg-cream-dark/60 border border-sage/50 text-sage-charcoal font-medium">
+          No Watermark
+        </span>
+        <span class="hidden sm:inline-block px-3 py-1 rounded-full bg-cream-dark/60 border border-sage/50 text-sage-charcoal font-medium">
+          320kbps Audio
+        </span>
+        <!-- Swatch Layout Inverter Button -->
+        <button id="paletteInvertBtn" class="px-3 py-1 rounded-full bg-sage text-sage-charcoal hover:opacity-90 transition font-medium border border-sage-deep/40 text-[11px]">
+          Invert Palette
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Hero & Workspace -->
+  <main class="max-w-4xl mx-auto px-6 py-10 flex-1 w-full">
+    
+    <!-- Hero Card -->
+    <div class="bg-cream rounded-3xl p-7 sm:p-9 shadow-xl border border-sage/40 mb-8 transition-colors text-center">
+      <h2 class="text-2xl sm:text-4xl font-bold swatch-serif text-sage-charcoal tracking-tight">
+        Universal Media Downloader
+      </h2>
+      <div class="w-12 h-0.5 bg-sage-deep/50 my-3 mx-auto"></div>
+      <p class="text-xs sm:text-sm text-sage-deep font-medium max-w-lg mx-auto">
+        Paste any video or short drama link. Platforms and stream qualities are detected automatically.
+      </p>
+    </div>
+
+    <!-- URL Input Card -->
+    <div class="bg-cream rounded-3xl p-4 sm:p-5 shadow-xl border border-sage/40 transition-colors">
+      <div class="flex flex-col sm:flex-row gap-2.5">
+        
+        <!-- Platform Badge (Pure typography, no icons) -->
+        <div id="platformBadge" class="flex items-center justify-center px-4 py-2.5 rounded-2xl bg-sage border border-sage-deep/30 text-xs font-semibold text-sage-charcoal min-w-[130px] transition-all">
+          <span id="badgeText">Auto-Detect</span>
+        </div>
+
+        <!-- Input Box -->
+        <div class="relative flex-1">
+          <input 
+            type="text" 
+            id="urlInput"
+            placeholder="Paste YouTube, TikTok, Instagram, Facebook or X link..."
+            class="w-full h-12 bg-cream-light border border-sage/60 rounded-2xl px-4 text-sm text-sage-charcoal font-medium focus:outline-none focus:border-sage-deep transition-colors shadow-inner"
+          />
+        </div>
+
+        <!-- Action Buttons (Pure typography, no icons) -->
+        <div class="flex gap-2">
+          <button 
+            id="pasteBtn"
+            class="h-12 px-5 bg-cream-dark hover:bg-cream-deep active:scale-98 text-sage-charcoal font-semibold text-xs sm:text-sm rounded-2xl transition border border-sage/50 flex items-center justify-center shadow-sm"
+          >
+            Paste
+          </button>
+          <button 
+            id="fetchBtn"
+            class="h-12 px-7 bg-sage hover:bg-sage-dark active:scale-98 text-sage-charcoal font-bold text-sm rounded-2xl transition flex items-center justify-center border border-sage-deep/40 shadow-sm"
+          >
+            Analyze
+          </button>
+        </div>
+      </div>
+
+      <!-- Supported Platforms Hint Chips (No Icons) -->
+      <div class="flex flex-wrap items-center justify-center gap-2 mt-4 pt-3.5 border-t border-sage/30 text-[11px] text-sage-charcoal font-medium">
+        <span class="px-3 py-1 rounded-full bg-cream-light border border-sage/40">YouTube</span>
+        <span class="px-3 py-1 rounded-full bg-cream-light border border-sage/40">TikTok and Short Dramas</span>
+        <span class="px-3 py-1 rounded-full bg-cream-light border border-sage/40">Instagram Reels</span>
+        <span class="px-3 py-1 rounded-full bg-cream-light border border-sage/40">Facebook</span>
+        <span class="px-3 py-1 rounded-full bg-cream-light border border-sage/40">X and Twitter</span>
+        <span class="px-3 py-1 rounded-full bg-cream-light border border-sage/40">Reddit</span>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingBox" class="hidden mt-8 text-center py-10 bg-cream rounded-3xl border border-sage/40 shadow-lg">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-2 border-sage-deep border-t-transparent"></div>
+      <p class="mt-3 text-xs text-sage-deep tracking-wide font-medium">Extracting streams and metadata...</p>
+    </div>
+
+    <!-- Error Alert -->
+    <div id="errorBox" class="hidden mt-6 bg-cream border border-red-700/40 text-sage-charcoal px-6 py-4 rounded-3xl text-sm shadow-md">
+      <h4 class="font-bold text-red-900 text-xs tracking-wider uppercase swatch-serif">Extraction Notice</h4>
+      <p id="errorMessage" class="text-xs text-sage-charcoal mt-1 font-medium"></p>
+    </div>
+
+    <!-- Single Video Result Card -->
+    <div id="singleResultCard" class="hidden mt-8 bg-cream border border-sage/40 rounded-3xl overflow-hidden shadow-xl">
+      <div class="p-6 sm:p-7 flex flex-col md:flex-row gap-6">
+        <div class="w-full md:w-56 h-36 bg-cream-dark rounded-2xl overflow-hidden flex items-center justify-center relative flex-shrink-0 border border-sage/40 shadow-inner">
+          <img id="videoThumb" src="" alt="Thumbnail" class="w-full h-full object-cover">
+          <span id="videoDuration" class="absolute bottom-2 right-2 bg-sage-charcoal text-cream px-2 py-0.5 rounded-md text-[10px] font-mono border border-cream/20">
+            0:00
+          </span>
+        </div>
+        <div class="flex-1 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-1.5">
+              <span id="videoPlatformBadge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-sage text-sage-charcoal border border-sage-deep/30 uppercase tracking-wider">
+                Platform
+              </span>
+              <span id="videoAuthor" class="text-xs text-sage-deep font-medium truncate">Creator</span>
+            </div>
+            <h3 id="videoTitle" class="text-base sm:text-lg font-bold swatch-serif text-sage-charcoal line-clamp-2">Title</h3>
+          </div>
+          
+          <div class="mt-5 pt-4 border-t border-sage/30">
+            <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+              <select id="formatSelect" class="flex-1 bg-cream-light border border-sage/60 text-sage-charcoal font-medium text-xs sm:text-sm rounded-2xl px-4 py-2.5 focus:outline-none focus:border-sage-deep">
+                <!-- Dynamically populated -->
+              </select>
+              <button id="downloadSingleBtn" class="bg-sage hover:bg-sage-dark active:scale-98 text-sage-charcoal font-bold text-xs sm:text-sm px-7 py-2.5 rounded-2xl transition flex items-center justify-center border border-sage-deep/40 shadow-sm">
+                <span id="downloadBtnText">Download File</span>
+              </button>
+            </div>
+
+            <!-- Download Progress Bar & Speed Indicator -->
+            <div id="downloadProgressBarContainer" class="hidden mt-4 pt-3 border-t border-sage/30">
+              <div class="flex justify-between text-xs text-sage-charcoal font-medium mb-1.5">
+                <span id="downloadProgressLabel">Downloading 0%</span>
+                <span id="downloadSpeedLabel" class="text-sage-deep"></span>
+              </div>
+              <div class="w-full bg-cream-dark rounded-full h-2.5 overflow-hidden border border-sage/40">
+                <div id="downloadProgressBar" class="bg-sage-deep h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Batch / Drama Result Card -->
+    <div id="dramaResultCard" class="hidden mt-8 bg-cream border border-sage/40 rounded-3xl p-6 sm:p-7 shadow-xl">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-sage/30 gap-2">
+        <div>
+          <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-sage text-sage-charcoal border border-sage-deep/30 uppercase tracking-wider">
+            Short Drama Series
+          </span>
+          <h3 id="dramaTitle" class="text-lg font-bold swatch-serif text-sage-charcoal mt-2">Series Name</h3>
+          <p id="dramaAuthor" class="text-xs text-sage-deep font-medium">By Creator • 0 Episodes found</p>
+        </div>
+        <div class="flex gap-2">
+          <button id="selectAllBtn" class="px-3.5 py-1.5 bg-cream-light hover:bg-cream-dark text-sage-charcoal font-semibold text-xs rounded-xl border border-sage/40 shadow-sm">
+            Select All
+          </button>
+          <button id="deselectAllBtn" class="px-3.5 py-1.5 bg-cream-light hover:bg-cream-dark text-sage-charcoal font-semibold text-xs rounded-xl border border-sage/40 shadow-sm">
+            Deselect All
+          </button>
+        </div>
+      </div>
+
+      <!-- Episode List Container -->
+      <div id="episodeList" class="mt-4 max-h-80 overflow-y-auto space-y-2 pr-1">
+        <!-- Episodes populated dynamically -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-sage-deep/30 bg-cream/95 py-6 text-center text-xs text-sage-charcoal transition-colors">
+    <p class="font-medium">Universal Downloader</p>
+    <p class="text-[11px] text-sage-deep mt-1 font-sans">Processed locally via FastAPI and FFmpeg engine.</p>
+  </footer>
+
+  <!-- Script (Pure Typography, No Icons, Swatch Palette Integration) -->
+  <script>
+    const urlInput = document.getElementById('urlInput');
+    const platformBadge = document.getElementById('platformBadge');
+    const badgeText = document.getElementById('badgeText');
+    const fetchBtn = document.getElementById('fetchBtn');
+    const pasteBtn = document.getElementById('pasteBtn');
+    const loadingBox = document.getElementById('loadingBox');
+    const errorBox = document.getElementById('errorBox');
+    const errorMessage = document.getElementById('errorMessage');
+    const singleResultCard = document.getElementById('singleResultCard');
+    const dramaResultCard = document.getElementById('dramaResultCard');
+    const paletteInvertBtn = document.getElementById('paletteInvertBtn');
+    const pageBody = document.getElementById('pageBody');
+
+    let currentExtraction = null;
+    let pollInterval = null;
+    let isSageCanvas = true;
+
+    // Invert Palette Button: Switches between Sage Background and Cream Background
+    paletteInvertBtn.addEventListener('click', () => {
+      isSageCanvas = !isSageCanvas;
+      if (isSageCanvas) {
+        pageBody.style.backgroundColor = '#A5A79B';
+        paletteInvertBtn.innerText = 'Invert Palette';
+      } else {
+        pageBody.style.backgroundColor = '#E8D2B5';
+        paletteInvertBtn.innerText = 'Sage Canvas';
+      }
+    });
+
+    // Fast client-side regex detection (Clean typography, no icons/emojis)
+    function detectPlatformClient(url) {
+      const u = url.trim().toLowerCase();
+      if (!u) return { name: 'Auto-Detect', hint: '' };
+      if (u.includes('youtube.com') || u.includes('youtu.be')) {
+        return { name: 'YouTube', hint: u.includes('shorts') ? 'Shorts' : 'Video' };
+      }
+      if (u.includes('tiktok.com') || u.includes('douyin.com')) {
+        const isDrama = u.includes('/shortdrama/') || u.includes('/series/');
+        return { name: 'TikTok', hint: isDrama ? 'Drama Series' : 'Video' };
+      }
+      if (u.includes('instagram.com') || u.includes('instagr.am')) {
+        return { name: 'Instagram', hint: 'Reel or Post' };
+      }
+      if (u.includes('facebook.com') || u.includes('fb.watch') || u.includes('fb.com')) {
+        return { name: 'Facebook', hint: 'Watch or Reel' };
+      }
+      if (u.includes('twitter.com') || u.includes('x.com')) {
+        return { name: 'X / Twitter', hint: 'Video' };
+      }
+      if (u.includes('reddit.com')) {
+        return { name: 'Reddit', hint: 'Video' };
+      }
+      return { name: 'Universal', hint: 'Stream' };
+    }
+
+    urlInput.addEventListener('input', () => {
+      const res = detectPlatformClient(urlInput.value);
+      badgeText.innerText = res.hint ? `${res.name}: ${res.hint}` : res.name;
+    });
+
+    pasteBtn.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          urlInput.value = text;
+          urlInput.dispatchEvent(new Event('input'));
+        }
+      } catch (err) {
+        alert("Clipboard permission required. Please manually paste into the box.");
+      }
+    });
+
+    fetchBtn.addEventListener('click', analyzeUrl);
+    urlInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') analyzeUrl();
+    });
+
+    async function analyzeUrl() {
+      const url = urlInput.value.trim();
+      if (!url) {
+        alert("Please paste or type a valid URL.");
+        return;
+      }
+
+      // UI reset
+      errorBox.classList.add('hidden');
+      singleResultCard.classList.add('hidden');
+      dramaResultCard.classList.add('hidden');
+      document.getElementById('downloadProgressBarContainer').classList.add('hidden');
+      loadingBox.classList.remove('hidden');
+      fetchBtn.disabled = true;
+
+      try {
+        const resp = await fetch('/api/extract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url, target_store: "web" })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok) {
+          throw new Error(data.detail || "Unable to extract media from this URL.");
+        }
+
+        currentExtraction = data;
+
+        if (data.is_drama_series) {
+          renderDramaView(data);
+        } else {
+          renderSingleView(data);
+        }
+
+      } catch (err) {
+        errorMessage.innerText = err.message;
+        errorBox.classList.remove('hidden');
+      } finally {
+        loadingBox.classList.add('hidden');
+        fetchBtn.disabled = false;
+      }
+    }
+
+    // Helper to strip any emoji icons from strings
+    function cleanLabel(label) {
+      if (!label) return "";
+      return label.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}]/gu, '').trim();
+    }
+
+    function renderSingleView(data) {
+      document.getElementById('videoTitle').innerText = cleanLabel(data.title) || "Video";
+      document.getElementById('videoAuthor').innerText = data.author || "Creator";
+      document.getElementById('videoDuration').innerText = data.duration_str || "";
+      document.getElementById('videoThumb').src = data.thumbnail || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400";
+      document.getElementById('videoPlatformBadge').innerText = data.detection?.name || "Video";
+
+      const select = document.getElementById('formatSelect');
+      select.innerHTML = '';
+
+      if (data.formats && data.formats.length > 0) {
+        data.formats.forEach(f => {
+          const opt = document.createElement('option');
+          opt.value = f.format_id;
+          opt.dataset.ext = f.ext || 'mp4';
+          opt.innerText = cleanLabel(f.label);
+          select.appendChild(opt);
+        });
+      } else {
+        const opt = document.createElement('option');
+        opt.value = "bestvideo+bestaudio/best";
+        opt.dataset.ext = 'mp4';
+        opt.innerText = "Highest Available Quality MP4";
+        select.appendChild(opt);
+      }
+
+      const dlBtn = document.getElementById('downloadSingleBtn');
+      dlBtn.disabled = false;
+      document.getElementById('downloadBtnText').innerText = "Download File";
+
+      dlBtn.onclick = () => {
+        const selectedOpt = select.options[select.selectedIndex];
+        startDownloadJob(
+          urlInput.value.trim(),
+          selectedOpt.value,
+          selectedOpt.dataset.ext || 'mp4',
+          data.title || 'video'
+        );
+      };
+
+      singleResultCard.classList.remove('hidden');
+    }
+
+    function renderDramaView(data) {
+      document.getElementById('dramaTitle').innerText = cleanLabel(data.title) || "Drama Series";
+      document.getElementById('dramaAuthor').innerText = `By ${data.author || "TikTok Creator"} • ${data.total_episodes} Episodes found`;
+
+      const list = document.getElementById('episodeList');
+      list.innerHTML = '';
+
+      (data.episodes || []).forEach(ep => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-3 rounded-2xl bg-cream-light border border-sage/40 text-xs text-sage-charcoal';
+        row.innerHTML = `
+          <div class="flex items-center gap-3">
+            <input type="checkbox" checked class="w-4 h-4 rounded text-sage border-sage/60 focus:ring-sage">
+            <span class="font-medium text-sage-charcoal">EP ${ep.episodeNumber || 1}: ${cleanLabel(ep.title) || 'Episode'}</span>
+          </div>
+          <span class="text-sage-deep font-mono text-[11px]">${Math.floor((ep.duration || 0)/60)}m ${(ep.duration || 0)%60}s</span>
+        `;
+        list.appendChild(row);
+      });
+
+      dramaResultCard.classList.remove('hidden');
+    }
+
+    async function startDownloadJob(url, format_id, ext, title) {
+      const dlBtn = document.getElementById('downloadSingleBtn');
+      const btnText = document.getElementById('downloadBtnText');
+      const progContainer = document.getElementById('downloadProgressBarContainer');
+      const progBar = document.getElementById('downloadProgressBar');
+      const progLabel = document.getElementById('downloadProgressLabel');
+      const speedLabel = document.getElementById('downloadSpeedLabel');
+
+      dlBtn.disabled = true;
+      btnText.innerText = "Processing...";
+      progContainer.classList.remove('hidden');
+      progBar.style.width = '0%';
+      progLabel.innerText = "Connecting and downloading...";
+      speedLabel.innerText = "";
+
+      if (pollInterval) clearInterval(pollInterval);
+
+      try {
+        const resp = await fetch('/api/download/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url, format_id: format_id, ext: ext, title: title })
+        });
+
+        const job = await resp.json();
+        if (!resp.ok) {
+          throw new Error(job.detail || "Could not start download.");
+        }
+
+        const jobId = job.job_id;
+
+        // Poll progress
+        pollInterval = setInterval(async () => {
+          try {
+            const statusResp = await fetch(`/api/download/status?job_id=${jobId}`);
+            const statusData = await statusResp.json();
+
+            if (statusData.status === 'downloading') {
+              const pct = statusData.percent || 0;
+              progBar.style.width = pct + '%';
+              progLabel.innerText = `Downloading ${pct}%`;
+              speedLabel.innerText = `${statusData.speed || ''}  ${statusData.eta || ''}`.trim();
+            } else if (statusData.status === 'ready') {
+              clearInterval(pollInterval);
+              progBar.style.width = '100%';
+              progLabel.innerText = 'Ready. Saving file to your computer...';
+              speedLabel.innerText = '';
+              btnText.innerText = 'Saved';
+
+              // Trigger direct file download
+              window.location.href = `/api/download/file?job_id=${jobId}`;
+
+              setTimeout(() => {
+                dlBtn.disabled = false;
+                btnText.innerText = "Download Again";
+              }, 4000);
+
+            } else if (statusData.status === 'failed') {
+              clearInterval(pollInterval);
+              dlBtn.disabled = false;
+              btnText.innerText = "Download File";
+              progLabel.innerText = 'Failed: ' + (statusData.error || 'Download error');
+              alert("Download Failed: " + (statusData.error || "Unknown error"));
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        }, 600);
+
+      } catch (err) {
+        dlBtn.disabled = false;
+        btnText.innerText = "Download File";
+        alert("Download start error: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
