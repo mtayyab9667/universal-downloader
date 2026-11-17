@@ -545,7 +545,13 @@
           body: JSON.stringify({ url: url, target_store: "web" })
         });
 
-        const data = await resp.json();
+        let data = {};
+        try {
+          data = await resp.json();
+        } catch (_) {
+          throw new Error("The server is temporarily restarting or updating. Please wait 15-30 seconds and try again.");
+        }
+
         if (!resp.ok) {
           throw new Error(data.detail || "Unable to extract media from this URL.");
         }

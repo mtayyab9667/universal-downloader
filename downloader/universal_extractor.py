@@ -17,8 +17,11 @@ def get_cookie_file() -> Optional[str]:
     if raw_cookies:
         cookie_path = os.path.join(tempfile.gettempdir(), "render_yt_cookies.txt")
         try:
+            cleaned = raw_cookies.replace('\\n', '\n').strip()
+            if not cleaned.startswith('# Netscape'):
+                cleaned = "# Netscape HTTP Cookie File\n" + cleaned
             with open(cookie_path, "w", encoding="utf-8") as f:
-                f.write(raw_cookies)
+                f.write(cleaned + "\n")
             return cookie_path
         except Exception:
             pass
