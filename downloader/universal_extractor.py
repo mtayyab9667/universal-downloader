@@ -80,6 +80,7 @@ class UniversalExtractor:
             'skip_download': True,
             'extract_flat': 'in_playlist',
             'no_color': True,
+            'ignore_no_formats_error': True,
         }
         if cookie_file:
             ydl_opts['cookiefile'] = cookie_file
@@ -210,7 +211,7 @@ class UniversalExtractor:
                 matching = [h for h in available_resolutions if abs(h - height) <= 30 or (height == 1080 and h >= 1000)]
                 if matching:
                     formats_list.append({
-                        "format_id": f"bestvideo[height<={height}]+bestaudio/best[height<={height}]/best",
+                        "format_id": f"bestvideo*[height<={height}]+bestaudio/best[height<={height}]/best",
                         "label": label,
                         "type": "video",
                         "ext": "mp4",
@@ -220,7 +221,7 @@ class UniversalExtractor:
         # If no specific heights detected, provide Best Video
         if not formats_list:
             formats_list.append({
-                "format_id": "bestvideo+bestaudio/best",
+                "format_id": "bestvideo*+bestaudio/best",
                 "label": "Best Video Quality (No Watermark MP4)",
                 "type": "video",
                 "ext": "mp4",

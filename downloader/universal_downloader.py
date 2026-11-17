@@ -57,7 +57,7 @@ class UniversalDownloader:
         self,
         url: str,
         dest_folder: str,
-        format_id: str = "bestvideo+bestaudio/best",
+        format_id: str = "bestvideo*+bestaudio/best",
         target_ext: str = "mp4",
         progress_callback: Optional[Callable[[float, str, str, str], None]] = None,
         cancel_check: Optional[Callable[[], bool]] = None

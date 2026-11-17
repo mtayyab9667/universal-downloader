@@ -66,10 +66,43 @@ def health_check():
     cookie_env = os.environ.get("YOUTUBE_COOKIES", "")
     return {
         "status": "ok",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "has_youtube_cookies": bool(cookie_env),
         "cookies_length": len(cookie_env),
     }
+
+
+@app.get("/api/debug_formats")
+def debug_formats(url: str = Query(...)):
+    try:
+        import yt_dlp
+        from downloader.universal_extractor import get_cookie_file
+        cookie_file = get_cookie_file()
+        opts = {
+            'skip_download': True,
+            'ignore_no_formats_error': True,
+            'quiet': True,
+        }
+        if cookie_file:
+            opts['cookiefile'] = cookie_file
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            return {
+                "title": info.get("title"),
+                "formats_count": len(info.get("formats", [])),
+                "formats": [
+                    {
+                        "format_id": f.get("format_id"),
+                        "ext": f.get("ext"),
+                        "vcodec": f.get("vcodec"),
+                        "acodec": f.get("acodec"),
+                        "height": f.get("height")
+                    }
+                    for f in info.get("formats", [])
+                ]
+            }
+    except Exception as e:
+        return {"error": str(e)}
 
 
 @app.get("/")
