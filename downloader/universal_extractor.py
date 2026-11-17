@@ -77,14 +77,54 @@ class UniversalExtractor:
             'skip_download': True,
             'extract_flat': 'in_playlist',
             'no_color': True,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'ios', 'web']
+                }
+            }
         }
         if cookie_file:
             ydl_opts['cookiefile'] = cookie_file
 
+        info = None
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
+        except Exception as first_err:
+            # If YouTube bot check triggered, attempt fallback with ios/android client
+            if "confirm you’re not a bot" in str(first_err).lower() or "confirm you're not a bot" in str(first_err).lower():
+                try:
+                    fallback_opts = dict(ydl_opts)
+                    fallback_opts['extractor_args'] = {
+                        'youtube': {
+                            'player_client': ['ios', 'android']
+                        }
+                    }
+                    with yt_dlp.YoutubeDL(fallback_opts) as fallback_ydl:
+                        info = fallback_ydl.extract_info(url, download=False)
+                except Exception:
+                    pass
 
+            if not info:
+                err_msg = str(first_err)
+                if "confirm you’re not a bot" in err_msg.lower() or "confirm you're not a bot" in err_msg.lower():
+                    clean_err = (
+                        "YouTube Bot Protection (Cloud Hosting IP): YouTube restricts video extraction on cloud servers like Render. "
+                        "To enable YouTube on this live website: Add YOUTUBE_COOKIES in Render Dashboard -> Environment. "
+                        "Alternatively, run the desktop app locally on your PC where YouTube works with zero restrictions! "
+                        "(Note: TikTok, Instagram, Facebook, and X work 100% on this cloud site without any cookies.)"
+                    )
+                else:
+                    clean_err = err_msg
+
+                return {
+                    "success": False,
+                    "platform": platform,
+                    "detection": detection,
+                    "error": clean_err
+                }
+
+        try:
             if not info:
                 return {
                     "success": False,

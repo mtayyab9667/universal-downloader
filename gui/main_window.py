@@ -134,7 +134,7 @@ class UniversalDownloaderApp(ctk.CTk):
         self.paste_btn = ctk.CTkButton(
             input_container,
             text="Paste",
-            width=80,
+            width=75,
             height=38,
             fg_color=self.BTN_SEC_BG,
             hover_color=self.BTN_SEC_HOVER,
@@ -142,13 +142,27 @@ class UniversalDownloaderApp(ctk.CTk):
             font=ctk.CTkFont(size=13),
             command=self._on_paste_clicked
         )
-        self.paste_btn.grid(row=0, column=2, padx=6, pady=12)
+        self.paste_btn.grid(row=0, column=2, padx=4, pady=12)
+
+        # Clear Button (No Icons)
+        self.clear_btn = ctk.CTkButton(
+            input_container,
+            text="Clear",
+            width=75,
+            height=38,
+            fg_color=self.BTN_SEC_BG,
+            hover_color=self.BTN_SEC_HOVER,
+            text_color=self.TEXT_CREAM,
+            font=ctk.CTkFont(size=13),
+            command=self._on_clear_clicked
+        )
+        self.clear_btn.grid(row=0, column=3, padx=4, pady=12)
 
         # Fetch Button (No Icons)
         self.fetch_btn = ctk.CTkButton(
             input_container,
             text="Analyze",
-            width=120,
+            width=110,
             height=38,
             fg_color=self.ACCENT_SAGE,
             hover_color=self.ACCENT_HOVER,
@@ -156,7 +170,7 @@ class UniversalDownloaderApp(ctk.CTk):
             font=ctk.CTkFont(size=13, weight="bold"),
             command=self._on_fetch_clicked
         )
-        self.fetch_btn.grid(row=0, column=3, padx=(6, 12), pady=12)
+        self.fetch_btn.grid(row=0, column=4, padx=(4, 12), pady=12)
 
         # ---------------- 3. ADAPTIVE CONTENT WORKSPACE ----------------
         self.content_area = ctk.CTkFrame(self, fg_color=self.PANEL_BG, corner_radius=10, border_width=1, border_color=self.BORDER_COLOR)
@@ -622,6 +636,14 @@ class UniversalDownloaderApp(ctk.CTk):
                 self.url_var.set(clipboard_text.strip())
         except Exception:
             pass
+
+    def _on_clear_clicked(self):
+        self.url_var.set("")
+        self.platform_badge.configure(text="Auto-Detect")
+        self.global_status_label.configure(text="Ready")
+        self.current_metadata = None
+        self._switch_mode("empty")
+        self.url_entry.focus()
 
     # =========================================================================
     # LINK EXTRACTION & ADAPTIVE SWITCHING

@@ -102,6 +102,11 @@ class UniversalDownloader:
             'no_warnings': True,
             'windowsfilenames': True,
             'writethumbnail': False,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'ios', 'web']
+                }
+            }
         }
         if cookie_file:
             ydl_opts['cookiefile'] = cookie_file
