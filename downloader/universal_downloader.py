@@ -18,6 +18,28 @@ class UniversalDownloader:
         self._thread: Optional[threading.Thread] = None
 
     @staticmethod
+    def get_cookie_file() -> Optional[str]:
+        import tempfile
+        raw_cookies = os.environ.get("YOUTUBE_COOKIES")
+        if raw_cookies:
+            cookie_path = os.path.join(tempfile.gettempdir(), "render_yt_cookies.txt")
+            try:
+                with open(cookie_path, "w", encoding="utf-8") as f:
+                    f.write(raw_cookies)
+                return cookie_path
+            except Exception:
+                pass
+
+        for p in [
+            os.path.join(os.getcwd(), "cookies.txt"),
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "cookies.txt"),
+            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cookies.txt"),
+        ]:
+            if os.path.exists(p) and os.path.getsize(p) > 0:
+                return p
+        return None
+
+    @staticmethod
     def sanitize_filename(name: str) -> str:
         # Strip illegal characters for Windows and HTTP headers
         clean = re.sub(r'[\\/*?:"<>|]', "", name)
@@ -70,6 +92,7 @@ class UniversalDownloader:
                 if progress_callback:
                     progress_callback(100.0, "Processing audio/video with FFmpeg...", "", "")
 
+        cookie_file = self.get_cookie_file()
         ydl_opts: Dict[str, Any] = {
             'format': format_id,
             'outtmpl': out_template,
@@ -80,6 +103,8 @@ class UniversalDownloader:
             'windowsfilenames': True,
             'writethumbnail': False,
         }
+        if cookie_file:
+            ydl_opts['cookiefile'] = cookie_file
 
         if target_ext.lower() == 'mp4':
             ydl_opts['merge_output_format'] = 'mp4'

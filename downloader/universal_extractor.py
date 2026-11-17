@@ -1,10 +1,36 @@
 import os
 import re
+import tempfile
 from typing import Dict, Any, List, Optional
 import yt_dlp
 
 from .detector import PlatformDetector, Platform
 from .api import TikTokDramaAPI
+
+
+def get_cookie_file() -> Optional[str]:
+    """
+    Retrieves YouTube cookies from environment variable (e.g. Render.com)
+    or from a local cookies.txt file to bypass YouTube's datacenter bot checks.
+    """
+    raw_cookies = os.environ.get("YOUTUBE_COOKIES")
+    if raw_cookies:
+        cookie_path = os.path.join(tempfile.gettempdir(), "render_yt_cookies.txt")
+        try:
+            with open(cookie_path, "w", encoding="utf-8") as f:
+                f.write(raw_cookies)
+            return cookie_path
+        except Exception:
+            pass
+
+    for p in [
+        os.path.join(os.getcwd(), "cookies.txt"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "cookies.txt"),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cookies.txt"),
+    ]:
+        if os.path.exists(p) and os.path.getsize(p) > 0:
+            return p
+    return None
 
 class UniversalExtractor:
     """
@@ -44,13 +70,16 @@ class UniversalExtractor:
                 }
 
         # Case 2: General / Universal Social Media Extraction via yt-dlp
-        ydl_opts = {
+        cookie_file = get_cookie_file()
+        ydl_opts: Dict[str, Any] = {
             'quiet': True,
             'no_warnings': True,
             'skip_download': True,
             'extract_flat': 'in_playlist',
             'no_color': True,
         }
+        if cookie_file:
+            ydl_opts['cookiefile'] = cookie_file
 
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
